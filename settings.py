@@ -49,8 +49,9 @@ ROOT_URLCONF = 'advanced_api_project.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        # This line explicitly tells Django where to find the templates.
-        'DIRS': [os.path.join(BASE_DIR, 'venv/Lib/site-packages/rest_framework/templates')],
+        # Corrected line: The 'r' before the string makes it a raw string.
+        # This prevents the backslashes from being interpreted as escape sequences.
+        'DIRS': [r'C:\Users\Administrator\advanced-api-project\venv\Lib\site-packages\rest_framework\templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
