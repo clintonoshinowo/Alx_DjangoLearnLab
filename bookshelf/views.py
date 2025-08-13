@@ -1,10 +1,16 @@
+# bookshelf/views.py
+
 from django.shortcuts import render
-from django.contrib.auth import get_user_model
-from django.shortcuts import get_object_or_404
+from django.http import HttpResponse
+
+def hello_world(request):
+    """
+    A simple view that returns an HTTP response with a "Hello, world!" message.
+    """
+    return HttpResponse("Hello, world! This is the bookshelf app.")
 
 def profile(request):
-    CustomUser = get_user_model()
-    user = get_object_or_404(CustomUser, id=request.user.id)
-    context = {'user': user}
-    return render(request, 'bookshelf/profile.html', context)
-# Create your views here.
+    """
+    A placeholder view for the user profile page.
+    """
+    return HttpResponse("This is the user profile page.")
