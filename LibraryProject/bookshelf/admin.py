@@ -22,3 +22,10 @@ class BookAdmin(admin.ModelAdmin):
 
 # Register the Book model with its custom admin class
 admin.site.register(Book, BookAdmin)
+# bookshelf/admin.py
+
+from django.contrib import admin
+from .models import Book
+
+# Register your models here.
+admin.site.register(Book)
