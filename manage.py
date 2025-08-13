@@ -6,10 +6,8 @@ import sys
 
 def main():
     """Run administrative tasks."""
+    # This line tells Django where to find your project's settings file.
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'LibraryProject.settings')
-
-    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'advanced_api_project.settings')
- 1659b6a (FEAT: Set up custom serializers and nested relationships for API)
     try:
         from django.core.management import execute_from_command_line
     except ImportError as exc:
