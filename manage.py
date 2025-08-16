@@ -7,6 +7,8 @@ import sys
 def main():
     """Run administrative tasks."""
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'django_blog.settings')
+    # This line tells Django where to find your project's settings file.
+    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'LibraryProject.settings')
     try:
         from django.core.management import execute_from_command_line
     except ImportError as exc:
