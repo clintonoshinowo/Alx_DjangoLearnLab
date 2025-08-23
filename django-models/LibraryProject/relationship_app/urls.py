@@ -1,6 +1,7 @@
 from django.urls import path
 from .views import list_all_books, LibraryDetailView
 from .views import index, LibraryDetailView, list_books
+from .views import list_books
 from . import views
 # Define the URL patterns for the relationship_app
 urlpatterns = [
