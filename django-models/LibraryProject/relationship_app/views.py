@@ -1,32 +1,42 @@
-from django.shortcuts import render
-from django.views.generic.detail import DetailView
-from .models import Library, Book
+# LibraryProject/relationship_app/views.py
 
-# Function-based view to list all books
-def list_all_books(request):
-    """
-    Renders a page listing all books from the database.
-    """
-    # Query all Book objects from the database
-    books = Book.objects.all()
-    # Pass the books queryset to the template context
-    context = {
-        'books': books
-    }
-    # Render the list_books.html template with the context
-    return render(request, 'relationship_app/list_books.html', context)
+from django.shortcuts import render, redirect
+from django.urls import reverse_lazy
+from django.views.generic import DetailView
+from django.contrib.auth import login
+from .models import Library
+from .forms import UserRegistrationForm
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.forms import UserCreationForm
 
-# Class-based view to show details for a single library
+# Main index page view, currently a placeholder.
+def index(request):
+    return render(request, "relationship_app/index.html")
+
+# View to display a single library's details.
 class LibraryDetailView(DetailView):
-    """
-    Renders a page with details for a specific library, including its books.
-    This view uses Django's built-in DetailView.
-    """
-    # The model this view will be working with
     model = Library
-    # The name of the template to be rendered
-    template_name = 'relationship_app/library_detail.html'
-    # The name of the context object used in the template (e.g., {{ library }})
-    context_object_name = 'library'
+    template_name = "relationship_app/library_detail.html"
+    context_object_name = "library"
 
-# Create your views here.
+# View to list all books (placeholder).
+def list_books(request):
+    return render(request, "relationship_app/list_books.html")
+
+# New view for user registration.
+def register(request):
+    # If the request is a POST, the form has been submitted.
+    if request.method == "POST":
+        form = UserRegistrationForm(request.POST)
+        if form.is_valid():
+            # Save the new user and automatically log them in.
+            user = form.save()
+            login(request, user)
+            # Redirect to the home page or a success page.
+            return redirect("relationship_app:index")
+    else:
+        # If the request is a GET, display an empty registration form.
+        form = UserRegistrationForm()
+    
+    # Render the registration page with the form.
+    return render(request, "relationship_app/register.html", {"form": form})

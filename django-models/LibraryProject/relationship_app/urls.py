@@ -1,21 +1,27 @@
-from django.urls import path
-from .views import list_all_books, LibraryDetailView
-from .views import index, LibraryDetailView, list_books
-from .views import list_books
-from . import views
-# Define the URL patterns for the relationship_app
-urlpatterns = [
-    # Path for the function-based view to list all books
-    # The name 'list_books' is used for URL reversal in templates
-    path('books/', list_all_books, name='list_books'),
+# LibraryProject/relationship_app/urls.py
 
-    # Path for the class-based view to show a single library's details
-    # <int:pk> is a dynamic path converter that matches an integer primary key
-    path('library/<int:pk>/', LibraryDetailView.as_view(), name='library_detail'),
-    # This path matches the root of the app URL (e.g., http://127.0.0.1:8000/)
-    # and calls the 'list_books' function in views.py
-    path('', views.list_all_books, name='list_books'),
-    # Path for the new list_books view. This will be a simple view
-    # to list all books.
+from django.urls import path
+# Import built-in views for login and logout
+from django.contrib.auth.views import LoginView, LogoutView
+# Import your custom register view and other existing views
+from .views import index, LibraryDetailView, list_books, register
+
+app_name = "relationship_app"
+
+urlpatterns = [
+    # Existing URL patterns
+    path("", index, name="index"),
+    path("libraries/<int:pk>/", LibraryDetailView.as_view(), name="library_detail"),
     path("books/", list_books, name="list_books"),
+
+    # New URL patterns for authentication
+    # The login view handles user authentication. We specify the template name.
+    path("login/", LoginView.as_view(template_name="relationship_app/login.html"), name="login"),
+    
+    # The logout view logs the user out. It redirects to a URL defined in settings.py.
+    path("logout/", LogoutView.as_view(), name="logout"),
+
+    # The registration view uses your custom view function.
+    path("register/", register, name="register"),
+    path("accounts/", include("django.contrib.auth.urls")),
 ]
