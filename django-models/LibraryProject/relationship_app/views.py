@@ -1,42 +1,28 @@
 # LibraryProject/relationship_app/views.py
 
 from django.shortcuts import render, redirect
-from django.urls import reverse_lazy
-from django.views.generic import DetailView
-from django.contrib.auth import login
-from .models import Library
-from .forms import UserRegistrationForm
-from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm
+from django.urls import reverse_lazy
 
-# Main index page view, currently a placeholder.
+# View for the index page.
 def index(request):
+    """The home page for the relationship_app."""
     return render(request, "relationship_app/index.html")
 
-# View to display a single library's details.
-class LibraryDetailView(DetailView):
-    model = Library
-    template_name = "relationship_app/library_detail.html"
-    context_object_name = "library"
-
-# View to list all books (placeholder).
-def list_books(request):
-    return render(request, "relationship_app/list_books.html")
-
-# New view for user registration.
+# View for user registration.
 def register(request):
-    # If the request is a POST, the form has been submitted.
-    if request.method == "POST":
-        form = UserRegistrationForm(request.POST)
-        if form.is_valid():
-            # Save the new user and automatically log them in.
-            user = form.save()
-            login(request, user)
-            # Redirect to the home page or a success page.
-            return redirect("relationship_app:index")
+    """Register a new user."""
+    if request.method != "POST":
+        # Display blank registration form.
+        form = UserCreationForm()
     else:
-        # If the request is a GET, display an empty registration form.
-        form = UserRegistrationForm()
-    
-    # Render the registration page with the form.
-    return render(request, "relationship_app/register.html", {"form": form})
+        # Process completed form.
+        form = UserCreationForm(data=request.POST)
+        if form.is_valid():
+            new_user = form.save()
+            # Redirect to the login page after a successful registration.
+            return redirect(reverse_lazy("relationship_app:login"))
+
+    # Display a blank or invalid form.
+    context = {"form": form}
+    return render(request, "relationship_app/register.html", context)
