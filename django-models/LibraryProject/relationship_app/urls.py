@@ -1,5 +1,6 @@
 from django.urls import path
 from .views import list_all_books, LibraryDetailView
+from .views import index, LibraryDetailView, list_books
 from . import views
 # Define the URL patterns for the relationship_app
 urlpatterns = [
@@ -13,4 +14,7 @@ urlpatterns = [
     # This path matches the root of the app URL (e.g., http://127.0.0.1:8000/)
     # and calls the 'list_books' function in views.py
     path('', views.list_all_books, name='list_books'),
+    # Path for the new list_books view. This will be a simple view
+    # to list all books.
+    path("books/", list_books, name="list_books"),
 ]
