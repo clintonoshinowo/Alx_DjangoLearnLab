@@ -20,6 +20,6 @@ from django.urls import path, include
 urlpatterns = [
     path('admin/', admin.site.urls),
      # Add this line to include your app's URLs
-    path('', include('relationship_app.urls')),
-    path('django-models/', include('django-models.urls')), # <-- Add this line
+    
+    path('relationships/', include('relationship_app.urls')),
 ]

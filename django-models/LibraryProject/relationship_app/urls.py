@@ -7,6 +7,8 @@ from . import views  # Corrected import statement
 app_name = "relationship_app"
 
 urlpatterns = [
+     # ... other URL patterns ...
+    path('librarian/', views.librarian_view, name='librarian_view'),
     # Path for the index page.
     path("", views.index, name="index"),
     

@@ -6,7 +6,20 @@ from django.contrib.auth.forms import UserCreationForm
 from django.urls import reverse_lazy
 from django.shortcuts import render
 from django.contrib.auth.decorators import user_passes_test, login_required
+from django.contrib.auth.decorators import user_passes_test
 
+def is_librarian(user):
+    """
+    Checks if the user belongs to the 'Librarians' group.
+    """
+    return user.groups.filter(name='Librarians').exists()
+
+@user_passes_test(is_librarian)
+def librarian_view(request):
+    """
+    A view accessible only to users who are in the 'Librarians' group.
+    """
+    return render(request, 'relationship_app/librarian_view.html', {})
 # --- Test functions for user roles ---
 # These functions will be used by the @user_passes_test decorator.
 def is_admin(user):
