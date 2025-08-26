@@ -20,4 +20,11 @@ urlpatterns = [
 
     # Path for user logout.
     path("logout/", LogoutView.as_view(template_name="relationship_app/logout.html"), name="logout"),
+    # Path for a view that requires the user to have 'librarian' permissions
+    path('librarian/', views.librarian_view, name='librarian_view'),
+    # Paths for managing books, secured by specific permissions
+    path('books/', views.list_books, name='list_books'),
+    path('book/add/', views.add_book, name='add_book'),
+    path('book/change/<int:pk>/', views.change_book, name='change_book'),
+    path('book/delete/<int:pk>/', views.delete_book, name='delete_book'),
 ]
