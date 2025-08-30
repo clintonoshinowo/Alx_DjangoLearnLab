@@ -1,6 +1,12 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+from django.conf import settings
+from django.db import models
 
+class Author(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    name = models.CharField(max_length=100)
+    # ... other fields
 
 class CustomUser(AbstractUser):
     date_of_birth = models.DateField(null=True, blank=True)
