@@ -1,125 +1,93 @@
-# relationship_app/models.py
+import uuid # This line was added!
 from django.db import models
-from django.contrib.auth.models import User
-from django.db.models.signals import post_save
-from django.dispatch import receiver
+from django.urls import reverse # Used to generate URLs by reversing the URL patterns
 
-# Note: assuming authors.py and publishers.py are separate modules with
-# Author and Publisher models defined. If they are in this file,
-# the imports are not needed and the classes should be moved.
-# from .authors import Author
-# from .publishers import Publisher
-
-# Define the user roles as choices
-ROLE_CHOICES = (
-    ('Admin', 'Admin'),
-    ('Librarian', 'Librarian'),
-    ('Member', 'Member'),
-)
-
-class UserProfile(models.Model):
-    """
-    A model to hold additional information for a user, like their role.
-    It has a OneToOne relationship with Django's built-in User model.
-    """
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-    role = models.CharField(max_length=10, choices=ROLE_CHOICES, default='Member')
+class Language(models.Model):
+    """Model representing a Language (e.g. English, French, Japanese, etc.)"""
+    name = models.CharField(max_length=200, help_text="Enter the book's natural language (e.g. English, French, Japanese etc.)")
 
     def __str__(self):
-        """String for representing the UserProfile object."""
-        return f"{self.user.username}'s Profile - {self.role}"
-
-# Signal to automatically create a UserProfile when a new User is created.
-@receiver(post_save, sender=User)
-def create_user_profile(sender, instance, created, **kwargs):
-    """
-    This signal function listens for the 'post_save' event on the User model.
-    If a new user is created ('created' is True), it automatically creates
-    a corresponding UserProfile instance.
-    """
-    if created:
-        UserProfile.objects.create(user=instance)
-
-@receiver(post_save, sender=User)
-def save_user_profile(sender, instance, **kwargs):
-    """
-    This signal function listens for the 'post_save' event on the User model
-    and ensures the UserProfile is saved whenever the User is saved.
-    """
-    instance.userprofile.save()
-
-class Author(models.Model):
-    """Represents a book author."""
-    name = models.CharField(max_length=100)
-    email = models.EmailField(max_length=254, unique=True, blank=True, null=True)
-
-    def __str__(self):
-        """String for representing the Author object."""
+        """String for representing the Model object (in Admin site etc.)."""
         return self.name
 
-class Publisher(models.Model):
-    """Represents a book publisher."""
-    name = models.CharField(max_length=100)
-    city = models.CharField(max_length=100, blank=True)
+class Genre(models.Model):
+    """Model representing a book genre (e.g. Science Fiction, Fantasy)."""
+    name = models.CharField(max_length=200, help_text="Enter a book genre (e.g. Science Fiction, French Poetry etc.)")
 
     def __str__(self):
-        """String for representing the Publisher object."""
+        """String for representing the Model object."""
+        return self.name
+
+class Author(models.Model):
+    """Model representing an author."""
+    first_name = models.CharField(max_length=100)
+    last_name = models.CharField(max_length=100)
+    date_of_birth = models.DateField(null=True, blank=True)
+    date_of_death = models.DateField('Died', null=True, blank=True)
+
+    class Meta:
+        ordering = ['last_name', 'first_name']
+
+    def get_absolute_url(self):
+        """Returns the URL to access a particular author instance."""
+        return reverse('author-detail', args=[str(self.id)])
+
+    def __str__(self):
+        """String for representing the Model object."""
+        return f'{self.last_name}, {self.first_name}'
+
+class Publisher(models.Model):
+    """Model representing a book publisher."""
+    name = models.CharField(max_length=200)
+
+    def __str__(self):
+        """String for representing the Model object."""
         return self.name
 
 class Book(models.Model):
-    """
-    Represents a book in the library.
-    It has ForeignKey relationships to Author and Publisher, and includes custom permissions.
-    """
+    """Model representing a book (but not a specific copy of a book)."""
     title = models.CharField(max_length=200)
-    publication_date = models.DateField(blank=True, null=True) 
-    
-    # ForeignKey relationships
-    authors = models.ManyToManyField(Author)
-    publisher = models.ForeignKey(Publisher, on_delete=models.CASCADE, blank=True, null=True)
+    author = models.ForeignKey('Author', on_delete=models.SET_NULL, null=True)
+    publisher = models.ForeignKey('Publisher', on_delete=models.SET_NULL, null=True)
+    summary = models.TextField(max_length=1000, help_text="Enter a brief description of the book")
+    isbn = models.CharField('ISBN', max_length=13, unique=True,
+                             help_text='13 Character <a href="https://www.isbn-international.org/content/what-isbn">ISBN number</a>')
+    genre = models.ManyToManyField(Genre, help_text="Select a genre for this book")
+    language = models.ForeignKey('Language', on_delete=models.SET_NULL, null=True)
 
-    # Corrected ISBN field definition, all on one line or in one block.
-    # The null=True argument is necessary to fix the migration issue.
-    isbn = models.CharField(
-        'ISBN',
-        max_length=13,
-        unique=True,
-        null=True, # This is the key change to solve the error
-        help_text='13 Character <a href="https://www.isbn-international.org/content/what-isbn">ISBN number</a>'
+    def __str__(self):
+        """String for representing the Model object."""
+        return self.title
+
+    def get_absolute_url(self):
+        """Returns the URL to access a detail record for this book."""
+        return reverse('book-detail', args=[str(self.id)])
+
+class BookInstance(models.Model):
+    """Model representing a specific copy of a book (i.e. that can be borrowed from the library)."""
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, help_text="Unique ID for this particular book across whole library")
+    book = models.ForeignKey('Book', on_delete=models.RESTRICT, null=True)
+    imprint = models.CharField(max_length=200)
+    due_back = models.DateField(null=True, blank=True)
+
+    LOAN_STATUS = (
+        ('m', 'Maintenance'),
+        ('o', 'On loan'),
+        ('a', 'Available'),
+        ('r', 'Reserved'),
     )
-    
-    # Fields from the user's provided code
-    summary = models.TextField(
-        max_length=1000,
-        help_text="Enter a brief description of the book"
+
+    status = models.CharField(
+        max_length=1,
+        choices=LOAN_STATUS,
+        blank=True,
+        default='m',
+        help_text='Book availability',
     )
 
     class Meta:
-        # Define the custom permissions for this model.
-        permissions = [
-            ("can_add_book", "Can add a book entry"),
-            ("can_change_book", "Can change a book entry"),
-            ("can_delete_book", "Can delete a book entry"),
-        ]
+        ordering = ['due_back']
 
     def __str__(self):
-        """String for representing the Book object."""
-        return self.title
-
-class Library(models.Model):
-    """Represents a library that can hold multiple books."""
-    name = models.CharField(max_length=100)
-    books = models.ManyToManyField(Book)
-
-    def __str__(self):
-        """String for representing the Library object."""
-        return self.name
-
-class Librarian(models.Model):
-    """Represents a librarian associated with a specific library."""
-    name = models.CharField(max_length=100)
-    library = models.OneToOneField(Library, on_delete=models.CASCADE)
-
-    def __str__(self):
-        """String for representing the Librarian object."""
-        return self.name
+        """String for representing the Model object."""
+        return f'{self.id} ({self.book.title})'
