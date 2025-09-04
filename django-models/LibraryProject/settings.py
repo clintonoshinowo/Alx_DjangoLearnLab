@@ -44,7 +44,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'relationship_app',  # Your new app goes here
+    'relationship_app.apps.RelationshipAppConfig',  # Your new app goes here
 ]
 
 # Middleware is a framework of hooks that process requests and responses.

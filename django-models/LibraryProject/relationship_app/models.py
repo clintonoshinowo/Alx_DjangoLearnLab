@@ -75,7 +75,7 @@ class Book(models.Model):
     publication_date = models.DateField(blank=True, null=True) 
     
     # ForeignKey relationships
-    author = models.ForeignKey(Author, on_delete=models.CASCADE)
+    authors = models.ManyToManyField(Author)
     publisher = models.ForeignKey(Publisher, on_delete=models.CASCADE, blank=True, null=True)
 
     # Corrected ISBN field definition, all on one line or in one block.
