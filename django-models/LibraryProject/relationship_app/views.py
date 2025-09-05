@@ -1,6 +1,13 @@
 from django.shortcuts import render
 from .models import Author, Book, BookInstance, Genre, Language, Publisher
 from django.db.models import Count
+from django.shortcuts import HttpResponse
+
+def homepage(request):
+    """
+    Renders a simple HTTP response for the homepage.
+    """
+    return HttpResponse("<h1>Hello, world!</h1><p>This is your new Django homepage.</p>")
 
 def index(request):
     """
@@ -21,3 +28,4 @@ def index(request):
 
     # Render the HTML template index.html with the data in the context variable
     return render(request, 'index.html', context=context)
+    return HttpResponse("Welcome to the Relationships App!")
