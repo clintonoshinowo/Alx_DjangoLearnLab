@@ -1,7 +1,18 @@
 import uuid
 from django.db import models
-from django.urls import reverse # Used to generate URLs by reversing the URL patterns
+from django.urls import reverse
 from django.contrib.auth.models import User
+
+# Define the choices for the user's role
+# Using a tuple of tuples is the recommended Django way to define choices
+# The first value is the actual value stored in the database, and the second
+# value is the human-readable name displayed in the Django admin site.
+LIBRARIAN = 'librarian'
+MEMBER = 'member'
+USER_ROLES = (
+    (LIBRARIAN, 'Librarian'),
+    (MEMBER, 'Member'),
+)
 
 class Language(models.Model):
     """Model representing a Language (e.g. English, French, Japanese, etc.)"""
@@ -52,9 +63,11 @@ class Book(models.Model):
     publisher = models.ForeignKey('Publisher', on_delete=models.SET_NULL, null=True)
     summary = models.TextField(max_length=1000, help_text="Enter a brief description of the book")
     isbn = models.CharField('ISBN', max_length=13, unique=True,
-                           help_text='13 Character <a href="https://www.isbn-international.org/content/what-isbn">ISBN number</a>')
+                               help_text='13 Character ISBN number')
     genre = models.ManyToManyField(Genre, help_text="Select a genre for this book")
     language = models.ForeignKey('Language', on_delete=models.SET_NULL, null=True)
+    # The 'publication_date' field has been added here.
+    publication_date = models.DateField(null=True, blank=True)
 
     def __str__(self):
         """String for representing the Model object."""
@@ -93,40 +106,13 @@ class BookInstance(models.Model):
         """String for representing the Model object."""
         return f'{self.id} ({self.book.title})'
 
-# Define the choices for the user's role
-# Using a tuple of tuples is the recommended Django way to define choices
-# The first value is the actual value stored in the database, and the second
-# value is the human-readable name displayed in the Django admin site.
-LIBRARIAN = 'librarian'
-MEMBER = 'member'
-USER_ROLES = (
-    (LIBRARIAN, 'Librarian'),
-    (MEMBER, 'Member'),
-)
-
 class UserProfile(models.Model):
     """
     Extends the Django User model with a one-to-one relationship
     and includes a role field to identify user types.
     """
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
-    role = models.CharField(max_length=20, choices=USER_ROLES, default='Member')
+    role = models.CharField(max_length=20, choices=USER_ROLES, default=MEMBER)
 
     def __str__(self):
-        return self.user.username + " - " + self.role
-    # Define choices for user roles
-    """
-    This model extends the default Django User model.
-    It's linked using a OneToOneField, ensuring that each User can only have
-    one associated UserProfile.
-    """
-    # This creates a one-to-one relationship with Django's built-in User model.
-    # When a User is deleted, their UserProfile will also be deleted (CASCADE).
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-
-    # The 'role' field uses the predefined choices.
-    # The default role for a new user is 'member'.
-    role = models.CharField(max_length=20, choices=ROLES, default=MEMBER)
-
-    def __str__(self):
-        return f"{self.user.username}'s Profile"
+        return f"{self.user.username} - {self.role}"
