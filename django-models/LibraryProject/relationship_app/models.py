@@ -66,8 +66,13 @@ class Book(models.Model):
                                help_text='13 Character ISBN number')
     genre = models.ManyToManyField(Genre, help_text="Select a genre for this book")
     language = models.ForeignKey('Language', on_delete=models.SET_NULL, null=True)
-    # The 'publication_date' field has been added here.
     publication_date = models.DateField(null=True, blank=True)
+
+    # Added the Meta class with permissions here
+    class Meta:
+        permissions = (
+            ('can_manage_books', 'Can add, edit, or delete books'),
+        )
 
     def __str__(self):
         """String for representing the Model object."""
