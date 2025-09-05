@@ -99,12 +99,22 @@ class BookInstance(models.Model):
 # value is the human-readable name displayed in the Django admin site.
 LIBRARIAN = 'librarian'
 MEMBER = 'member'
-ROLES = (
+USER_ROLES = (
     (LIBRARIAN, 'Librarian'),
     (MEMBER, 'Member'),
 )
 
 class UserProfile(models.Model):
+    """
+    Extends the Django User model with a one-to-one relationship
+    and includes a role field to identify user types.
+    """
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
+    role = models.CharField(max_length=20, choices=USER_ROLES, default='Member')
+
+    def __str__(self):
+        return self.user.username + " - " + self.role
+    # Define choices for user roles
     """
     This model extends the default Django User model.
     It's linked using a OneToOneField, ensuring that each User can only have
