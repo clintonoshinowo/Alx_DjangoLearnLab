@@ -68,10 +68,11 @@ class Book(models.Model):
     language = models.ForeignKey('Language', on_delete=models.SET_NULL, null=True)
     publication_date = models.DateField(null=True, blank=True)
 
-    # Added the Meta class with permissions here
     class Meta:
         permissions = (
-            ('can_manage_books', 'Can add, edit, or delete books'),
+            ('can_add_book', 'Can add a book'),
+            ('can_change_book', 'Can change a book'),
+            ('can_delete_book', 'Can delete a book'),
         )
 
     def __str__(self):
