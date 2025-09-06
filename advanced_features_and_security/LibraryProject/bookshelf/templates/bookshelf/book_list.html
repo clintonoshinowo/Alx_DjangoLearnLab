@@ -1,0 +1,121 @@
+<!-- This template is used by the book_list and search_books views. -->
+
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Book List</title>
+<style>
+body {
+font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+background-color: #f0f2f5;
+color: #333;
+margin: 0;
+padding: 20px;
+}
+.container {
+max-width: 800px;
+margin: auto;
+background: #fff;
+padding: 30px;
+border-radius: 12px;
+box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+h1 {
+color: #1e3a8a;
+text-align: center;
+margin-bottom: 20px;
+}
+.search-form {
+display: flex;
+justify-content: center;
+margin-bottom: 30px;
+gap: 10px;
+}
+.search-form input[type="text"] {
+width: 70%;
+padding: 12px;
+border: 1px solid #ddd;
+border-radius: 8px;
+font-size: 16px;
+}
+.search-form button {
+padding: 12px 20px;
+background-color: #3b82f6;
+color: white;
+border: none;
+border-radius: 8px;
+cursor: pointer;
+font-size: 16px;
+transition: background-color 0.2s ease;
+}
+.search-form button:hover {
+background-color: #2563eb;
+}
+.book-list {
+display: flex;
+flex-direction: column;
+gap: 15px;
+}
+.book-item {
+background-color: #fafafa;
+padding: 20px;
+border: 1px solid #eee;
+border-radius: 8px;
+display: flex;
+justify-content: space-between;
+align-items: center;
+transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.book-item:hover {
+transform: translateY(-5px);
+box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+}
+.book-details h2 {
+margin: 0 0 5px 0;
+color: #1f2937;
+}
+.book-details p {
+margin: 0;
+color: #6b7280;
+font-size: 0.9em;
+}
+.no-books {
+text-align: center;
+color: #9ca3af;
+padding: 50px;
+}
+</style>
+</head>
+<body>
+
+<div class="container"> <h1>Our Book Collection</h1> <p style="text-align: center; margin-bottom: 30px;"> Expalore our library or use the search bar to find a specific book. </p>
+
+<!-- Search form for books -->
+<form class="search-form" action="{% url 'search_books' %}" method="get">
+    <input type="text" name="q" placeholder="Search by title..." value="{{ query|default:'' }}">
+    <button type="submit">Search</button>
+</form>
+
+<div class="book-list">
+    <!-- Loop through the books passed from the Django view -->
+    {% if books %}
+        {% for book in books %}
+            <div class="book-item">
+                <div class="book-details">
+                    <h2>{{ book.title }}</h2>
+                    <p><strong>Author:</strong> {{ book.author }}</p>
+                </div>
+            </div>
+        {% endfor %}
+    {% else %}
+        <p class="no-books">No books found. Please try a different search or add some books!</p>
+    {% endif %}
+</div>
+
+</div>
+
+</body>
+</html>
