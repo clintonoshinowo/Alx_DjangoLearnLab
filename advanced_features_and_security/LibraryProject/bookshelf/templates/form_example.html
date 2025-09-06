@@ -1,0 +1,114 @@
+<!-- This template is used by the form_example view to render a secure form -->
+
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Secure Form Example</title>
+<style>
+body {
+font-family: sans-serif;
+margin: 20px;
+padding: 0;
+background-color: #f4f4f9;
+color: #333;
+}
+.container {
+max-width: 600px;
+margin: 40px auto;
+padding: 20px;
+background-color: #fff;
+border-radius: 8px;
+box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+h1 {
+text-align: center;
+color: #0056b3;
+}
+form {
+display: flex;
+flex-direction: column;
+gap: 15px;
+}
+.form-group {
+display: flex;
+flex-direction: column;
+}
+label {
+margin-bottom: 5px;
+font-weight: bold;
+}
+input[type="text"] {
+padding: 10px;
+border: 1px solid #ccc;
+border-radius: 4px;
+font-size: 16px;
+}
+.errorlist {
+color: red;
+font-size: 0.9em;
+margin-top: 5px;
+list-style-type: none;
+padding-left: 0;
+}
+button {
+padding: 10px 15px;
+background-color: #007bff;
+color: white;
+border: none;
+border-radius: 4px;
+cursor: pointer;
+font-size: 16px;
+}
+button:hover {
+background-color: #0056b3;
+}
+.message {
+margin-top: 20px;
+padding: 15px;
+border-radius: 4px;
+background-color: #d4edda;
+color: #155724;
+border: 1px solid #c3e6cb;
+text-align: center;
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+<h1>Secure Form Example</h1>
+
+<!-- Display the message if it exists -->
+{% if message %}
+    <div class="message">{{ message }}</div>
+{% endif %}
+
+<!--
+This form submission uses a POST method, which is the standard
+for submitting forms to change data on the server.
+-->
+<form method="post">
+    <!--
+    The csrf_token tag is a security measure in Django.
+    It generates a hidden input field with a unique token that protects
+    against Cross-Site Request Forgery (CSRF) attacks.
+    -->
+    {% csrf_token %}
+
+    <!--
+    This tag renders all form fields and their corresponding labels,
+    as defined in forms.py. It's a convenient way to render the form.
+    Any validation errors will also be rendered automatically.
+    -->
+    {{ form.as_p }}
+
+    <button type="submit">Submit</button>
+</form>
+
+</div>
+
+</body>
+</html>
