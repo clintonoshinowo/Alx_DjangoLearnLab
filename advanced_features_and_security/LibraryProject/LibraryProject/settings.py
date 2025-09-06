@@ -124,55 +124,54 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# --- SECURITY ENHANCEMENTS ---
 
-# Step 1: Configure Secure Settings
-# Ensure DEBUG is False in a production environment. This prevents sensitive information
-# from being exposed to the user in case of an error.
-DEBUG = False
+# -------------------------------------
+# Step 1: Configure Django for HTTPS Support
+# -------------------------------------
 
-# Protect against Cross-Site Scripting (XSS) and other attacks.
-# These headers instruct modern browsers to enforce security measures.
-# X_FRAME_OPTIONS prevents clickjacking by ensuring your site cannot be embedded in an iframe.
-# SECURE_BROWSER_XSS_FILTER enables the browser's XSS filter.
-# SECURE_CONTENT_TYPE_NOSNIFF prevents the browser from trying to guess content types,
-# which can mitigate some XSS attacks.
-X_FRAME_OPTIONS = 'DENY'
-SECURE_BROWSER_XSS_FILTER = True
-SECURE_CONTENT_TYPE_NOSNIFF = True
-
-# Enforce secure cookies. These settings ensure that CSRF and Session cookies
-# are only sent over HTTPS connections, protecting them from eavesdropping.
-CSRF_COOKIE_SECURE = True
-SESSION_COOKIE_SECURE = True
-
-# Enforce HTTPS connections by redirecting all HTTP requests to HTTPS.
-# This requires your server to be configured to handle HTTPS.
+# Enforces the use of HTTPS for all requests by redirecting non-HTTPS to HTTPS.
+# This should be set to True in production.
 SECURE_SSL_REDIRECT = True
-SECURE_HSTS_SECONDS = 31536000  # 1 year
+
+# Enables HTTP Strict Transport Security (HSTS). This header tells browsers
+# to only connect to your site using HTTPS for a specified duration.
+# Setting it for one year (31536000 seconds) is a common best practice.
+SECURE_HSTS_SECONDS = 31536000
+
+# Includes all subdomains in the HSTS policy.
 SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+
+# Allows your domain to be included in the HSTS preload list, a list
+# of sites hardcoded into major browsers to only use HTTPS.
 SECURE_HSTS_PRELOAD = True
 
-# For Content Security Policy (CSP), a common approach is to use a dedicated package
-# like `django-csp`. This example shows how to add a simple CSP header manually
-# which allows content from your own domain only.
-# In a real-world scenario, you would list trusted domains.
-# To use this, you'd need to install the package and add it to your INSTALLED_APPS and MIDDLEWARE.
-# For now, we'll just set up the header.
-# This is a very restrictive policy. Adjust as needed.
-CSP_DEFAULT_SRC = ("'self'",)
-CSP_STYLE_SRC = ("'self'", "'unsafe-inline'", "https://cdn.jsdelivr.net")
-CSP_SCRIPT_SRC = ("'self'", "https://cdn.jsdelivr.net")
+# -------------------------------------
+# Step 2: Enforce Secure Cookies
+# -------------------------------------
 
-# This is an example of how to manually add a CSP header.
-# A full implementation would likely use middleware.
-# The code below is not functional on its own in settings.py, but serves as a comment
-# for a common manual implementation approach.
-"""
-from django.http import HttpResponse
+# Ensures that session cookies are only sent over a secure (HTTPS) connection.
+SESSION_COOKIE_SECURE = True
 
-def my_view(request):
-    response = HttpResponse("Hello, World!")
-    response['Content-Security-Policy'] = "default-src 'self';"
-    return response
-"""
+# Ensures that CSRF cookies are only sent over a secure (HTTPS) connection.
+CSRF_COOKIE_SECURE = True
+
+# -------------------------------------
+# Step 3: Implement Secure Headers
+# -------------------------------------
+
+# Prevents the site from being loaded in an iframe, protecting against clickjacking attacks.
+X_FRAME_OPTIONS = 'DENY'
+
+# Prevents browsers from MIME-sniffing the content type, forcing them to
+# rely on the Content-Type header. This prevents an attacker from
+# uploading a malicious file and having it executed as a different type.
+SECURE_CONTENT_TYPE_NOSNIFF = True
+
+# Enables the browser's built-in XSS filter. Note: This is an older header and
+# modern browsers have more robust protection, but it's a good practice to include.
+SECURE_BROWSER_XSS_FILTER = True
+
+# Set `SECURE_PROXY_SSL_HEADER` if your app is behind a reverse proxy (e.g., Nginx, Apache).
+# This tells Django that requests coming from the proxy are secure.
+# For example, if using a standard proxy setup:
+# SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
