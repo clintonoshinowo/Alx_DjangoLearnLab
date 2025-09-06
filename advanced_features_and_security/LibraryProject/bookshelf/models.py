@@ -51,3 +51,25 @@ class CustomUser(AbstractUser):
 
     def __str__(self):
         return self.email
+
+class Book(models.Model):
+    """
+    Represents a book in the library management system.
+    This model includes custom permissions to control user actions.
+    """
+    title = models.CharField(max_length=200)
+    author = models.CharField(max_length=100)
+    publication_date = models.DateField()
+
+    class Meta:
+        # Define custom permissions for the Book model.
+        # These permissions will be used to create user groups with specific access levels.
+        permissions = [
+            ("can_view", "Can view books"),
+            ("can_create", "Can create new books"),
+            ("can_edit", "Can edit existing books"),
+            ("can_delete", "Can delete books"),
+        ]
+
+    def __str__(self):
+        return self.title
