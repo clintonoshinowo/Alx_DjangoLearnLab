@@ -1,56 +1,56 @@
 from django.shortcuts import render
-from django.shortcuts import render, get_object_or_404, redirect
-from django.contrib.auth.decorators import permission_required
-from django.http import HttpResponseForbidden
-
 from .models import Book
+from django.http import HttpResponseBadRequest
+import re
+from .forms import ExampleForm  # The missing import, now added.
 
-def index(request):
-    """
-    The main landing page, which is accessible to all users.
-    """
-    return render(request, 'base_template.html', {'message': 'Welcome to the Library Management System!'})
-
-@permission_required('bookshelf.can_view', raise_exception=True)
 def book_list(request):
     """
-    View to display a list of all books. Access is restricted to users with the 'can_view' permission.
+    Renders a list of books.
+    This view demonstrates a simple, safe use of the Django ORM.
     """
-    # Fetch all book objects from the database
     books = Book.objects.all()
-    context = {'books': books}
-    return render(request, 'book_list.html', context)
+    return render(request, 'bookshelf/book_list.html', {'books': books})
 
-@permission_required('bookshelf.can_create', raise_exception=True)
-def book_create(request):
+def search_books(request):
     """
-    View to handle the creation of a new book. Requires the 'can_create' permission.
+    A view to demonstrate secure handling of user input to prevent SQL injection.
+    It uses Django's ORM, which handles parameterization automatically.
     """
+    query = request.GET.get('q', '')
+    if query:
+        # The Django ORM safely parameterizes the query, preventing SQL injection.
+        sanitized_query = query.strip()
+        
+        if not re.match(r"^[a-zA-Z0-9\s]+$", sanitized_query):
+            return HttpResponseBadRequest("Invalid search query. Please use only alphanumeric characters and spaces.")
+
+        books = Book.objects.filter(title__icontains=sanitized_query)
+    else:
+        books = Book.objects.all()
+    
+    return render(request, 'bookshelf/book_list.html', {'books': books, 'query': query})
+
+def form_example(request):
+    """
+    A view that securely handles form submissions using Django's Form classes.
+    """
+    message = None
     if request.method == 'POST':
-        # Add logic here to save the new book data from the form
-        return redirect('book_list')
-    return render(request, 'book_form.html', {'form_title': 'Create New Book'})
-
-@permission_required('bookshelf.can_edit', raise_exception=True)
-def book_edit(request, pk):
-    """
-    View to handle editing an existing book. Requires the 'can_edit' permission.
-    """
-    book = get_object_or_404(Book, pk=pk)
-    if request.method == 'POST':
-        # Add logic here to save the edited book data from the form
-        return redirect('book_list')
-    return render(request, 'book_form.html', {'form_title': 'Edit Book'})
-
-@permission_required('bookshelf.can_delete', raise_exception=True)
-def book_delete(request, pk):
-    """
-    View to delete a book. Requires the 'can_delete' permission.
-    """
-    book = get_object_or_404(Book, pk=pk)
-    if request.method == 'POST':
-        book.delete()
-        return redirect('book_list')
-    return render(request, 'book_confirm_delete.html', {'book': book})
-
-# Create your views here.
+        # Create a form instance and populate it with data from the request.
+        form = ExampleForm(request.POST)
+        
+        # Check if the form is valid. This automatically runs the defined
+        # validation rules, such as max_length, and provides a clean data dictionary.
+        if form.is_valid():
+            # Data is now sanitized and ready to use.
+            user_input = form.cleaned_data['user_input']
+            message = f"Form submitted successfully! Your input was: '{user_input}'"
+        else:
+            # If the form is not valid, the form object contains error messages.
+            message = "Form submission failed. Please check the input."
+    else:
+        # If it's a GET request, create an empty form instance.
+        form = ExampleForm()
+    
+    return render(request, 'bookshelf/form_example.html', {'form': form, 'message': message})
