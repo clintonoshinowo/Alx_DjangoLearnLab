@@ -33,18 +33,21 @@ class CustomUserManager(BaseUserManager):
         return self.create_user(email, password, **extra_fields)
 
 class CustomUser(AbstractUser):
-    # Add an email field, which is often used for user accounts
-    email = models.EmailField(unique=True, null=True, blank=True)
+    # This field is set to 'email' in a custom user model for login purposes.
+    USERNAME_FIELD = "email"
+
+    # Django will prompt for these fields when a superuser is created.
+    REQUIRED_FIELDS = []
+
+    # The email field is the unique identifier for this user.
+    email = models.EmailField(unique=True)
 
     # You must set the objects manager for Django to recognize your custom manager.
     objects = CustomUserManager()
 
-    # The username field is already provided by AbstractUser. You can keep it or remove it.
-    # To use `email` as the primary login field, you need to set it as the USERNAME_FIELD
-    USERNAME_FIELD = "email"
-
-    # Define a list of fields that will be prompted for when a user is created with `createsuperuser`
-    REQUIRED_FIELDS = []
+    # Additional fields for the user profile
+    date_of_birth = models.DateField(null=True, blank=True)
+    profile_photo = models.ImageField(upload_to='profile_photos/', null=True, blank=True)
 
     def __str__(self):
-        return self.username
+        return self.email
