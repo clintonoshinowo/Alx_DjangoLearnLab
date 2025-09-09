@@ -1,76 +1,74 @@
-from django.shortcuts import render, get_object_or_404, redirect
-from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
-from django.urls import reverse_lazy
+from django.shortcuts import render
+from django.views.generic import (
+    ListView,
+    DetailView,
+    CreateView,
+    UpdateView,
+    DeleteView
+)
 from .models import Post
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.urls import reverse_lazy
+from django.contrib.messages.views import SuccessMessageMixin
+from django.contrib import messages
 
-# Create your views here.
+def home(request):
+    context = {
+        'posts': Post.objects.all()
+    }
+    return render(request, 'blog/home.html', context)
+
 
 class PostListView(ListView):
-    """
-    A view to display a list of blog posts.
-    It uses the Post model and orders the posts by creation date in descending order.
-    The template name is set to 'blog/post_list.html'.
-    """
     model = Post
-    template_name = 'blog/post_list.html'
+    template_name = 'blog/home.html'
     context_object_name = 'posts'
-    ordering = ['-date_created']
+    ordering = ['-date_posted']
+
 
 class PostDetailView(DetailView):
-    """
-    A view to display the details of a single blog post.
-    It uses the Post model and the template name is 'blog/post_detail.html'.
-    """
     model = Post
-    template_name = 'blog/post_detail.html'
 
-class PostCreateView(LoginRequiredMixin, CreateView):
-    """
-    A view to create a new blog post.
-    It requires the user to be logged in to access the view.
-    It uses the Post model and the template name is 'blog/post_form.html'.
-    The fields 'title', 'content', and 'author' are included in the form.
-    Upon successful form submission, it redirects to the post list view.
-    """
-    model = Post
-    template_name = 'blog/post_form.html'
-    fields = ['title', 'content', 'author']
-    success_url = reverse_lazy('blog:blog_index')
 
-class PostUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
-    """
-    A view to update an existing blog post.
-    It requires the user to be logged in and to be the author of the post to update it.
-    It uses the Post model and the template name is 'blog/post_form.html'.
-    The fields 'title', 'content', and 'author' are included in the form.
-    Upon successful form submission, it redirects to the post detail view.
-    """
+class PostCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
     model = Post
-    template_name = 'blog/post_form.html'
-    fields = ['title', 'content', 'author']
-    
+    fields = ['title', 'content']
+    success_url = reverse_lazy('blog-home')
+    success_message = "Post created successfully!"
+
+    def form_valid(self, form):
+        form.instance.author = self.request.user
+        return super().form_valid(form)
+
+
+class PostUpdateView(LoginRequiredMixin, UserPassesTestMixin, SuccessMessageMixin, UpdateView):
+    model = Post
+    fields = ['title', 'content']
+    success_url = reverse_lazy('blog-home')
+    success_message = "Post updated successfully!"
+
+    def form_valid(self, form):
+        form.instance.author = self.request.user
+        return super().form_valid(form)
+
     def test_func(self):
-        """
-        Check if the logged-in user is the author of the post.
-        """
         post = self.get_object()
         return self.request.user == post.author
+
 
 class PostDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
-    """
-    A view to delete an existing blog post.
-    It requires the user to be logged in and to be the author of the post to delete it.
-    It uses the Post model and the template name is 'blog/post_confirm_delete.html'.
-    Upon successful form submission, it redirects to the post list view.
-    """
     model = Post
-    template_name = 'blog/post_confirm_delete.html'
-    success_url = reverse_lazy('blog:blog_index')
-    
+    success_url = reverse_lazy('blog-home')
+    success_message = "Post deleted successfully!"
+
     def test_func(self):
-        """
-        Check if the logged-in user is the author of the post.
-        """
         post = self.get_object()
         return self.request.user == post.author
+
+    def delete(self, request, *args, **kwargs):
+        messages.success(self.request, self.success_message)
+        return super(PostDeleteView, self).delete(request, *args, **kwargs)
+
+
+def about(request):
+    return render(request, 'blog/about.html', {'title': 'About'})
