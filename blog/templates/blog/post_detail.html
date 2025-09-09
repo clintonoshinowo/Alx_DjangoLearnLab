@@ -1,0 +1,6 @@
+{{ post.title }}
+By {{ post.author }} on {{ post.date_posted|date:"F d, Y" }}
+{{ post.content }}
+
+{% if user.is_authenticated and user.id == post.author.id %} Edit Delete {% endif %}
+Back to Home
