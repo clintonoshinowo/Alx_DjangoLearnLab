@@ -2,7 +2,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse_lazy
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.views.generic import DetailView, CreateView, UpdateView, DeleteView
-from .models import Post, Comment
+from .models import Post, CommentCreateView
 from .forms import CommentForm
 
 class PostDetailView(DetailView):
