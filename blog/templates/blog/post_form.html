@@ -1,0 +1,3 @@
+{{ view.model.title|default:"Create New Post" }}
+{% csrf_token %} {{ form.as_p }} Save
+Cancels

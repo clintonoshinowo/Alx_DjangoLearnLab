@@ -1,0 +1,8 @@
+All Blog Posts
+Create a New Post
+{% for post in posts %}
+{{ post.title }}
+{{ post.content|truncatechars:150 }}
+
+By {{ post.author }} on {{ post.date_posted|date:"F d, Y" }}
+{% endfor %}
