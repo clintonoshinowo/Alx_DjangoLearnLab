@@ -9,7 +9,7 @@ urlpatterns = [
     path('post/<slug:slug>/', views.PostDetailView.as_view(), name='post_detail'),
     
     # URL for creating a new comment on a specific post.
-    path('post/<slug:slug>/comments/new/', views.CommentCreateView.as_view(), name='comment_new'),
+    path('post/<int:pk>/comments/new/', views.CommentCreateView.as_view(), name='comment_new'),
 
     # URL for updating an existing comment.
     path('comment/<int:pk>/update/', views.CommentUpdateView.as_view(), name='comment_update'),
