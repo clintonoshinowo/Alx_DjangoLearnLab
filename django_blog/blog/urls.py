@@ -1,21 +1,16 @@
 from django.urls import path
-from .views import (
-    index,
-    PostListView,
-    PostDetailView,
-    PostCreateView,
-    PostUpdateView,
-    PostDeleteView
-)
+from . import views
+
+app_name = 'blog'
 
 urlpatterns = [
-    # Path for the simple index view, mapped to the root of the app
-    path('', index, name='blog-index'), 
+    # URL for viewing a single post and creating a new comment.
+    # The 'post' method in PostDetailView handles the comment creation.
+    path('post/<slug:slug>/', views.PostDetailView.as_view(), name='post_detail'),
 
-    # Paths for the CRUD operations
-    path('posts/', PostListView.as_view(), name='blog-home'),
-    path('post/<int:pk>/', PostDetailView.as_view(), name='post-detail'),
-    path('post/new/', PostCreateView.as_view(), name='post-create'),
-    path('post/<int:pk>/update/', PostUpdateView.as_view(), name='post-update'),
-    path('post/<int:pk>/delete/', PostDeleteView.as_view(), name='post-delete'),
+    # URL for updating an existing comment.
+    path('comment/<int:pk>/update/', views.CommentUpdateView.as_view(), name='comment_update'),
+
+    # URL for deleting an existing comment.
+    path('comment/<int:pk>/delete/', views.CommentDeleteView.as_view(), name='comment_delete'),
 ]
